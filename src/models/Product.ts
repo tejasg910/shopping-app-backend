@@ -13,6 +13,7 @@ const Schema = new mongoose.Schema(
       required: [true, "Plase enter category"],
       trim: true,
     },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

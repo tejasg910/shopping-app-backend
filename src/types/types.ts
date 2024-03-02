@@ -25,3 +25,23 @@ export type ControllerType = (
 export type getUserByIdParam = {
   id: string;
 };
+
+export type searchRequestQuery = {
+  search?: string;
+  price?: string;
+  category?: string;
+  sort?: string;
+  page?: string;
+};
+
+export interface baseQueryType {
+  name?: {
+    $regex: string;
+    $options: string;
+  };
+  price?: {
+    $lte: number;
+  };
+  category?: string | undefined;
+  isDeleted: Boolean;
+}
