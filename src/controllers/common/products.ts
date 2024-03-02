@@ -8,6 +8,8 @@ import {
   searchRequestQuery,
 } from "../../types/types.js";
 import ErrorHandler from "../../utils/utility-class.js";
+import { nodeCache } from "../../app.js";
+import { machine } from "os";
 
 export const getProductById = async (
   req: Request<{ id: string }, {}, NewUserRequestBody>,
@@ -32,10 +34,15 @@ export const getLatestProducts = async (
   res: Response,
   next: NextFunction
 ) => {
-  const products = await Product.find({ isDeleted: false })
-    .sort({ createdAt: -1 })
-    .limit(5);
-
+  let products = [];
+  if (nodeCache.has("latest-product")) {
+    products = JSON.parse(nodeCache.get("latest-product") as string);
+  } else {
+    products = await Product.find({ isDeleted: false })
+      .sort({ createdAt: -1 })
+      .limit(5);
+    nodeCache.set("latest-product", JSON.stringify(products));
+  }
   res.status(201).json({
     success: true,
     message: `Fetched products successfully`,
@@ -48,7 +55,13 @@ export const getAllCategories = async (
   res: Response,
   next: NextFunction
 ) => {
-  const categories = await Product.distinct("category");
+  let categories = [];
+  if (nodeCache.has("categories")) {
+    categories = JSON.parse(nodeCache.get("categories") as string);
+  } else {
+    categories = await Product.distinct("category");
+    nodeCache.set("categories", JSON.stringify(categories));
+  }
 
   res.status(201).json({
     success: true,

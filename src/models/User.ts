@@ -9,6 +9,7 @@ interface IUser extends Document {
   role: "admin" | "user";
   gender: "male" | "female";
   dob: Date;
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 
@@ -27,6 +28,7 @@ const Schema = new mongoose.Schema(
       enum: ["male", "female"],
       required: [true, "Please enter gender"],
     },
+    isDeleted: { type: Boolean, default: false },
     dob: { type: Date, required: [true, "Plase enter date of birth"] },
     email: {
       type: String,

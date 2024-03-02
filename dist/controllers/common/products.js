@@ -1,5 +1,6 @@
 import { Product } from "../../models/Product.js";
 import ErrorHandler from "../../utils/utility-class.js";
+import { nodeCache } from "../../app.js";
 export const getProductById = async (req, res, next) => {
     const id = req.params.id;
     const product = await Product.findById(id);
@@ -13,9 +14,16 @@ export const getProductById = async (req, res, next) => {
     });
 };
 export const getLatestProducts = async (req, res, next) => {
-    const products = await Product.find({ isDeleted: false })
-        .sort({ createdAt: -1 })
-        .limit(5);
+    let products = [];
+    if (nodeCache.has("latest-product")) {
+        products = JSON.parse(nodeCache.get("latest-product"));
+    }
+    else {
+        products = await Product.find({ isDeleted: false })
+            .sort({ createdAt: -1 })
+            .limit(5);
+        nodeCache.set("latest-product", JSON.stringify(products));
+    }
     res.status(201).json({
         success: true,
         message: `Fetched products successfully`,
@@ -23,7 +31,14 @@ export const getLatestProducts = async (req, res, next) => {
     });
 };
 export const getAllCategories = async (req, res, next) => {
-    const categories = await Product.distinct("category");
+    let categories = [];
+    if (nodeCache.has("categories")) {
+        categories = JSON.parse(nodeCache.get("categories"));
+    }
+    else {
+        categories = await Product.distinct("category");
+        nodeCache.set("categories", JSON.stringify(categories));
+    }
     res.status(201).json({
         success: true,
         message: `Fetched categories successfully`,
