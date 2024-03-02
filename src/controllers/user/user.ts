@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { User } from "../models/User.js";
-import { NewUserRequestBody, getUserByIdParam } from "../types/types.js";
-import ErrorHandler from "../utils/utility-class.js";
-import { includeItems } from "../utils/constants.js";
+import { User } from "../../models/User.js";
+import { NewUserRequestBody, getUserByIdParam } from "../../types/types.js";
+import ErrorHandler from "../../utils/utility-class.js";
+import { includeItems } from "../../utils/constants.js";
 
 export const newUser = async (
   req: Request<{}, {}, NewUserRequestBody>,

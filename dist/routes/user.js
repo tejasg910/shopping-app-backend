@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteUserById, getAllUsers, getUserById, newUser, } from "../controllers/user.js";
+import { deleteUserById, getAllUsers, getUserById, newUser, } from "../controllers/user/user.js";
 import { TryCatch } from "../middlewares/errorHandler.js";
 import { adminOnly } from "../middlewares/auth.js";
 const router = express.Router();

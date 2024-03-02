@@ -1,5 +1,5 @@
-import { Product } from "../models/Product.js";
-import ErrorHandler from "../utils/utility-class.js";
+import { Product } from "../../models/Product.js";
+import ErrorHandler from "../../utils/utility-class.js";
 export const newProduct = async (req, res, next) => {
     const { name, stock, price, category } = req.body;
     const file = req.file;
@@ -9,10 +9,11 @@ export const newProduct = async (req, res, next) => {
     if (!file) {
         return next(new ErrorHandler("Please provide image", 400));
     }
+    console.log(file);
     const product = await Product.create({
         name,
         stock,
-        image: file.path,
+        image: file.originalname,
         price,
         category: category.toLowerCase(),
     });
