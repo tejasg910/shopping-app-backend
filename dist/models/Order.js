@@ -5,7 +5,7 @@ const Schema = new mongoose.Schema({
         city: { type: String, required: true },
         state: { type: String, required: true },
         country: { type: String, required: true },
-        pin: { type: Number, required: true },
+        pinCode: { type: Number, required: true },
     },
     user: {
         type: String,
@@ -38,9 +38,11 @@ const Schema = new mongoose.Schema({
         default: "processing",
     },
     name: { type: String, required: [true, "Plase enter name"] },
-    orderItems: [
-        { type: mongoose.Types.ObjectId, ref: "User", required: true },
-    ],
+    product: {
+        type: mongoose.Types.ObjectId,
+        ref: "Product",
+    },
+    quantity: { type: Number, default: 1 },
     isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
 export const Order = mongoose.model("Order", Schema);

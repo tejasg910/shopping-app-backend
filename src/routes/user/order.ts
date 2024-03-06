@@ -10,5 +10,5 @@ import { newOrder } from "../../controllers/user/order.js";
 
 const router = express.Router();
 
-router.get("/new", TryCatch(newOrder));
+router.post("/new", TryCatch(newOrder));
 export default router;

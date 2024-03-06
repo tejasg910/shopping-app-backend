@@ -23,3 +23,11 @@ export const invalidateCache = ({ product, order, admin, }) => {
     if (admin) {
     }
 };
+export const validateObjectIds = async (productID) => {
+    try {
+        return new mongoose.Types.ObjectId(productID);
+    }
+    catch (error) {
+        return null;
+    }
+};

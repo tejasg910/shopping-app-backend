@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
+import mongoose from "mongoose";
 export interface NewUserRequestBody {
   name: string;
   email: string;
@@ -51,3 +52,27 @@ export type InvalidateCacheType = {
   order?: boolean;
   admin?: boolean;
 };
+
+export type shippingInfoType = {
+  address: string;
+  state: string;
+  country: string;
+  pinCode: number;
+  city: string;
+};
+export type OrderItemsType = {
+  productId: string;
+  quantity: number;
+};
+export interface NewOrderRequestBody {
+  shippingInfo: shippingInfoType;
+  user: string;
+  subTotal: number;
+  tax: number;
+  shippingCharges: number;
+  discount: number;
+  total: number;
+  orderItems: OrderItemsType[];
+
+  name: string;
+}
