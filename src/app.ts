@@ -9,26 +9,27 @@ import { commonRoutes } from "./routes/common/index.js";
 
 import { connectDb } from "./utils/features.js";
 import { errorMiddleWare } from "./middlewares/errorHandler.js";
+import { config } from "dotenv";
+config({ path: "./.env" });
 const app = express();
 const PORT = process.env.PORT || 8000;
 
 //importing routes
-connectDb();
+const mongoURI = process.env.MONGO_URI || "";
+connectDb(mongoURI);
 export const nodeCache = new NodeCache();
 app.use(express.json());
 //using routes
-app.use(morgan("combined"));
+app.use(morgan("dev"));
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/common", commonRoutes);
 app.use("/api/v1/admin", adminRoutes);
-app.use("/", (req, res, next) => {
-  console.log("Requested URL:", req.originalUrl);
-  console.log("Resolved Path:", __dirname);
-  next();
-});
 
 // Serve static files from the uploads directory
-app.use(express.static(path.join(__dirname, "/")));
+app.use("/uploads", express.static(path.join(__dirname, "/")));
+app.get("/", (req, res, next) => {
+  res.send("Welcome to shopping backend");
+});
 
 app.use(errorMiddleWare);
 app.listen(PORT, () => console.log("Server started on 8000"));

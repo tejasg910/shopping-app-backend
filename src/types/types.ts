@@ -45,3 +45,9 @@ export interface baseQueryType {
   category?: string | undefined;
   isDeleted: Boolean;
 }
+
+export type InvalidateCacheType = {
+  product?: boolean;
+  order?: boolean;
+  admin?: boolean;
+};

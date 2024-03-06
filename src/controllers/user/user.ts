@@ -68,22 +68,3 @@ export const getUserById = async (
   });
 };
 
-export const deleteUserById = async (
-  req: Request<{ id: string }, {}, NewUserRequestBody>,
-  res: Response,
-  next: NextFunction
-) => {
-  const id = req.params.id;
-  const userUpdate = await User.findByIdAndUpdate(
-    { _id: id },
-    { isDeleted: true }
-  );
-  if (userUpdate) {
-    res.status(200).json({
-      success: true,
-      message: `User deleted successfully`,
-    });
-  } else {
-    return next(new ErrorHandler("No user found", 400));
-  }
-};

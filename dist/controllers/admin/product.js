@@ -3,6 +3,7 @@ import ErrorHandler from "../../utils/utility-class.js";
 import { rm } from "fs";
 import { faker } from "@faker-js/faker";
 import { nodeCache } from "../../app.js";
+import { invalidateCache } from "../../utils/features.js";
 export const newProduct = async (req, res, next) => {
     const { name, stock, price, category } = req.body;
     const file = req.file;
@@ -23,12 +24,7 @@ export const newProduct = async (req, res, next) => {
         price,
         category: category.toLowerCase(),
     });
-    nodeCache.del([
-        "allProducts",
-        "productCount",
-        "categories",
-        "latest-product",
-    ]);
+    invalidateCache({ product: true });
     res.status(201).json({
         success: true,
         message: `${product.name} added successfully`,
@@ -60,12 +56,7 @@ export const udpateProduct = async (req, res, next) => {
     if (category)
         existingProduct.category = category;
     await existingProduct.save();
-    nodeCache.del([
-        "allProducts",
-        "productCount",
-        "categories",
-        "latest-product",
-    ]);
+    invalidateCache({ product: true });
     res.status(200).json({
         success: true,
         message: `product updated successfully`,
@@ -111,12 +102,7 @@ export const deleteProductById = async (req, res, next) => {
     }
     product.isDeleted = true;
     await product.save();
-    nodeCache.del([
-        "allProducts",
-        "productCount",
-        "categories",
-        "latest-product",
-    ]);
+    invalidateCache({ product: true });
     res.status(200).json({
         success: true,
         message: `Product deleted successfully`,
@@ -138,6 +124,7 @@ export const generateFakeProducts = async (req, res, next) => {
             fakeProducts.push(fakeProduct);
         }
         const savedProducts = await Product.insertMany(fakeProducts);
+        invalidateCache({ product: true });
         console.log(`${count} fake products added successfully!`);
         res.status(200).json({
             success: true,

@@ -10,6 +10,7 @@ import { includeItems } from "../../utils/constants.js";
 import { rm } from "fs";
 import { faker } from "@faker-js/faker";
 import { nodeCache } from "../../app.js";
+import { invalidateCache } from "../../utils/features.js";
 
 export const newProduct = async (
   req: Request<{}, {}, NewProductRequestBody>,
@@ -39,12 +40,7 @@ export const newProduct = async (
     price,
     category: category.toLowerCase(),
   });
-  nodeCache.del([
-    "allProducts",
-    "productCount",
-    "categories",
-    "latest-product",
-  ]);
+  invalidateCache({ product: true });
   res.status(201).json({
     success: true,
     message: `${product.name} added successfully`,
@@ -85,12 +81,7 @@ export const udpateProduct = async (
   if (category) existingProduct.category = category;
 
   await existingProduct.save();
-  nodeCache.del([
-    "allProducts",
-    "productCount",
-    "categories",
-    "latest-product",
-  ]);
+  invalidateCache({ product: true });
   res.status(200).json({
     success: true,
     message: `product updated successfully`,
@@ -148,12 +139,7 @@ export const deleteProductById = async (
 
   product.isDeleted = true;
   await product.save();
-  nodeCache.del([
-    "allProducts",
-    "productCount",
-    "categories",
-    "latest-product",
-  ]);
+  invalidateCache({ product: true });
   res.status(200).json({
     success: true,
     message: `Product deleted successfully`,
@@ -179,6 +165,7 @@ export const generateFakeProducts = async (
       fakeProducts.push(fakeProduct);
     }
     const savedProducts = await Product.insertMany(fakeProducts);
+    invalidateCache({ product: true });
     console.log(`${count} fake products added successfully!`);
     res.status(200).json({
       success: true,
