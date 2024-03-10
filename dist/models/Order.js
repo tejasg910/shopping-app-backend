@@ -34,7 +34,7 @@ const Schema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["processing", "shipped", "delivered"],
+        enum: ["processing", "shipped", "delivered", "cancelled"],
         default: "processing",
     },
     name: { type: String, required: [true, "Plase enter name"] },

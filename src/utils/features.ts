@@ -23,8 +23,17 @@ export const invalidateCache = ({
   admin,
 }: InvalidateCacheType) => {
   if (product) {
+    const productsKeys: string[] = [];
+    const keys = nodeCache.keys();
+    keys.forEach((key) => {
+      if (key.startsWith("allProducts-")) {
+        productsKeys.push(key);
+      }
+    });
+
     const productKeys: string[] = [
-      "allProducts",
+      ...productsKeys,
+
       "productCount",
       "categories",
       "latest-product",
@@ -32,12 +41,20 @@ export const invalidateCache = ({
     nodeCache.del(productKeys);
   }
   if (order) {
+    const ordersKeys: string[] = [];
+    const keys = nodeCache.keys();
+    keys.forEach((key) => {
+      if (key.startsWith("allOrders-")) {
+        ordersKeys.push(key);
+      }
+    });
+
+    const orderKeys: string[] = [...ordersKeys, "allOrdersCount"];
+    nodeCache.del(orderKeys);
   }
   if (admin) {
   }
 };
-
-
 
 export const validateObjectIds = async (productID: string) => {
   try {

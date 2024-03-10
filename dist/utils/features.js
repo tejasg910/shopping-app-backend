@@ -10,8 +10,15 @@ export const connectDb = (uri) => {
 };
 export const invalidateCache = ({ product, order, admin, }) => {
     if (product) {
+        const productsKeys = [];
+        const keys = nodeCache.keys();
+        keys.forEach((key) => {
+            if (key.startsWith("allProducts-")) {
+                productsKeys.push(key);
+            }
+        });
         const productKeys = [
-            "allProducts",
+            ...productsKeys,
             "productCount",
             "categories",
             "latest-product",
@@ -19,6 +26,15 @@ export const invalidateCache = ({ product, order, admin, }) => {
         nodeCache.del(productKeys);
     }
     if (order) {
+        const ordersKeys = [];
+        const keys = nodeCache.keys();
+        keys.forEach((key) => {
+            if (key.startsWith("allOrders-")) {
+                ordersKeys.push(key);
+            }
+        });
+        const orderKeys = [...ordersKeys, "allOrdersCount"];
+        nodeCache.del(orderKeys);
     }
     if (admin) {
     }

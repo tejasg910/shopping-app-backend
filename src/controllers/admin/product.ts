@@ -95,12 +95,12 @@ export const getAllProducts = async (
   const page = Number(req.query.page) || 1;
   const limit = Number(process.env.PRODUCT_PER_PAGE) || 10;
   const skip = limit * (page - 1);
-
+  const key = `allProducts-${page}`;
   const count = Product.countDocuments({ isDeleted: false });
   let allProducts = [];
   let productCounts = 0;
-  if (nodeCache.has("allProducts") && nodeCache.has("productCount")) {
-    allProducts = JSON.parse(nodeCache.get("allProducts") as string);
+  if (nodeCache.has(key) && nodeCache.has("productCount")) {
+    allProducts = JSON.parse(nodeCache.get(key) as string);
     productCounts = Number(nodeCache.get("productCount"));
   } else {
     const productsList = Product.find({ isDeleted: false })
@@ -110,7 +110,7 @@ export const getAllProducts = async (
 
     allProducts = products;
     productCounts = productCount;
-    nodeCache.set("allProducts", JSON.stringify(products));
+    nodeCache.set(key, JSON.stringify(products));
     nodeCache.set("productCount", JSON.stringify(productCount));
   }
   res.status(200).json({

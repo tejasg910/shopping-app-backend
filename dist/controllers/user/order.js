@@ -1,5 +1,8 @@
 import { invalidateCache } from "../../utils/features.js";
 import { placeOrder } from "../../services/order.js";
+import { Order } from "../../models/Order.js";
+import ErrorHandler from "../../utils/utility-class.js";
+import { Product } from "../../models/Product.js";
 export const newOrder = async (req, res, next) => {
     const { shippingInfo, orderItems, user, subTotal, discount, shippingCharges, name, tax, total, } = req.body;
     if (!shippingInfo ||
@@ -35,5 +38,47 @@ export const newOrder = async (req, res, next) => {
         success: true,
         message: "All orders processed successfully",
         data: orders,
+    });
+};
+export const getAllMyOrders = async (req, res, next) => {
+    const id = req.query.id;
+    const orders = await Order.find({ user: id, isDeleted: false });
+    return res.status(200).json({
+        success: true,
+        message: "Orders fetched successfully",
+        data: orders,
+    });
+};
+export const getOrderDetails = async (req, res, next) => {
+    const id = req.params.id;
+    const order = await Order.findById({ _id: id, isDeleted: false });
+    if (!order) {
+        return next(new ErrorHandler("No order found", 404));
+    }
+    return res.status(200).json({
+        success: true,
+        message: "Orders fetched successfully",
+        data: order,
+    });
+};
+export const cancelOrder = async (req, res, next) => {
+    const id = req.query.id;
+    const orderId = req.params.id;
+    const order = await Order.findOne({
+        user: id,
+        _id: orderId,
+        isDeleted: false,
+    });
+    if (!order) {
+        return next(new ErrorHandler("No order found", 404));
+    }
+    await Order.findByIdAndUpdate({ _id: orderId }, { status: "cancelled" });
+    const product = await Product.findById(order.product);
+    const updatedStock = Number((product?.stock || 0) + order.quantity);
+    await Product.findByIdAndUpdate(order.product, { stock: updatedStock });
+    invalidateCache({ product: true, order: true, admin: true });
+    return res.status(200).json({
+        success: true,
+        message: "Orders cancelled successfully",
     });
 };

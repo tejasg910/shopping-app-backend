@@ -6,6 +6,7 @@ import NodeCache from "node-cache";
 import { userRoutes } from "./routes/user/index.js";
 import { adminRoutes } from "./routes/admin/index.js";
 import { commonRoutes } from "./routes/common/index.js";
+import paymentRoutes from "./routes/payment/payment.js";
 
 import { connectDb } from "./utils/features.js";
 import { errorMiddleWare } from "./middlewares/errorHandler.js";
@@ -24,6 +25,7 @@ app.use(morgan("dev"));
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/common", commonRoutes);
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/pay", paymentRoutes);
 
 // Serve static files from the uploads directory
 app.use("/uploads", express.static(path.join(__dirname, "/")));
