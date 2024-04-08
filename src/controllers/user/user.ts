@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { User } from "../../models/User.js";
 import { NewUserRequestBody, getUserByIdParam } from "../../types/types.js";
 import ErrorHandler from "../../utils/utility-class.js";
-import { includeItems } from "../../utils/constants.js";
+import { userIncludeItems } from "../../utils/constants.js";
 
 export const newUser = async (
   req: Request<{}, {}, NewUserRequestBody>,
@@ -36,7 +36,7 @@ export const getAllUsers = async (
   res: Response,
   next: NextFunction
 ) => {
-  const users = await User.find({ isDeleted: false }).select(includeItems);
+  const users = await User.find({ isDeleted: false }).select(userIncludeItems);
 
   res.status(201).json({
     success: true,
@@ -57,7 +57,7 @@ export const getUserById = async (
 ) => {
   const id = req.params.id;
 
-  const user = await User.findById(id).select(includeItems);
+  const user = await User.findById(id).select(userIncludeItems);
   if (!user) {
     return next(new ErrorHandler("User not found", 404));
   }
@@ -67,4 +67,3 @@ export const getUserById = async (
     data: user,
   });
 };
-

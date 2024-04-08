@@ -1,6 +1,6 @@
 import { User } from "../../models/User.js";
 import ErrorHandler from "../../utils/utility-class.js";
-import { includeItems } from "../../utils/constants.js";
+import { userIncludeItems } from "../../utils/constants.js";
 export const newUser = async (req, res, next) => {
     const { name, email, image, dob, gender, _id } = req.body;
     let user = await User.findById(_id);
@@ -23,7 +23,7 @@ export const newUser = async (req, res, next) => {
     res.status(201).json({ success: true, message: `Welcome, ${user.name}` });
 };
 export const getAllUsers = async (req, res, next) => {
-    const users = await User.find({ isDeleted: false }).select(includeItems);
+    const users = await User.find({ isDeleted: false }).select(userIncludeItems);
     res.status(201).json({
         success: true,
         message: `Fetched users successfully`,
@@ -33,7 +33,7 @@ export const getAllUsers = async (req, res, next) => {
 // Define a custom type for the request object
 export const getUserById = async (req, res, next) => {
     const id = req.params.id;
-    const user = await User.findById(id).select(includeItems);
+    const user = await User.findById(id).select(userIncludeItems);
     if (!user) {
         return next(new ErrorHandler("User not found", 404));
     }

@@ -7,11 +7,15 @@ import { userRoutes } from "./routes/user/index.js";
 import { adminRoutes } from "./routes/admin/index.js";
 import { commonRoutes } from "./routes/common/index.js";
 import paymentRoutes from "./routes/payment/payment.js";
-
+import cors from "cors";
 import { connectDb } from "./utils/features.js";
 import { errorMiddleWare } from "./middlewares/errorHandler.js";
 import { config } from "dotenv";
+import Stripe from "stripe";
 config({ path: "./.env" });
+const stripeKey = process.env.STRIPE || "";
+export const stripe = new Stripe(stripeKey);
+
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -19,6 +23,7 @@ const PORT = process.env.PORT || 8000;
 const mongoURI = process.env.MONGO_URI || "";
 connectDb(mongoURI);
 export const nodeCache = new NodeCache();
+app.use(cors());
 app.use(express.json());
 //using routes
 app.use(morgan("dev"));

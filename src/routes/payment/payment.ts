@@ -11,6 +11,7 @@ import {
   createCouponCode,
   deleteCoupon,
   getAllCoupons,
+  newPayment,
 } from "../../controllers/payments/payments.js";
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.get("/coupon/new", adminOnly, TryCatch(createCouponCode));
 router.get("/coupon/discount", TryCatch(applyDiscount));
 router.get("/coupon/all", adminOnly, TryCatch(getAllCoupons));
 router.delete("/coupon/delete/:id", adminOnly, TryCatch(deleteCoupon));
+router.post("/new", TryCatch(newPayment));
 
 export default router;

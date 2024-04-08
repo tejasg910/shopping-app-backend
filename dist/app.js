@@ -10,7 +10,10 @@ import paymentRoutes from "./routes/payment/payment.js";
 import { connectDb } from "./utils/features.js";
 import { errorMiddleWare } from "./middlewares/errorHandler.js";
 import { config } from "dotenv";
+import Stripe from "stripe";
 config({ path: "./.env" });
+const stripeKey = process.env.STRIPE || "";
+export const stripe = new Stripe(stripeKey);
 const app = express();
 const PORT = process.env.PORT || 8000;
 //importing routes

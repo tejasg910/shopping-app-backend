@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { Coupon } from "../../models/Coupon.js";
 import ErrorHandler from "../../utils/utility-class.js";
 import { compileFunction } from "vm";
+import { stripe } from "../../app.js";
 
 export const createCouponCode = async (
   req: Request<{}, {}>,
@@ -66,5 +67,30 @@ export const deleteCoupon = async (
   return res.status(200).json({
     success: true,
     message: "Coupon deleted successfully",
+  });
+};
+
+export const newPayment = async (
+  req: Request<{}, {}>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { amount } = req.body;
+  if (!amount) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Please provide the amount" });
+  }
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount:Number(amount) * 100,
+    currency: "inr",
+  });
+
+
+  return res.status(200).json({
+    success: true,
+    message: "Coupon deleted successfully",
+    data:{clientSecret:paymentIntent.client_secret}
   });
 };

@@ -63,3 +63,29 @@ export const validateObjectIds = async (productID: string) => {
     return null;
   }
 };
+
+export const calculatePercentage = (thisMonth: number, lastMonth: number) => {
+  if (lastMonth === 0) return thisMonth * 100;
+  const percent = (thisMonth / lastMonth) * 100;
+  return Number(percent.toFixed(0));
+};
+interface MyDocument extends Document {
+  createdAt: Date;
+}
+export const getLastMonthOrders = async (
+  length: Number,
+  lastSixMonthOrders: MyDocument[]
+) => {
+  const data = new Array(6).fill(0);
+
+  const today = new Date();
+  lastSixMonthOrders.forEach((order) => {
+    const creationDate = order.createdAt;
+    const monthDifference =
+      (today.getMonth() - creationDate.getMonth() + 12) % 12;
+  
+    if (monthDifference < 6) {
+      data[length - monthDifference - 1] += 1;
+    }
+  });
+};

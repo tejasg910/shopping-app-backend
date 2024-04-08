@@ -6,7 +6,7 @@ import {
   getUserByIdParam,
 } from "../../types/types.js";
 import ErrorHandler from "../../utils/utility-class.js";
-import { includeItems } from "../../utils/constants.js";
+import { userIncludeItems } from "../../utils/constants.js";
 import { rm } from "fs";
 import { faker } from "@faker-js/faker";
 import { nodeCache } from "../../app.js";
@@ -154,16 +154,19 @@ export const generateFakeProducts = async (
     const { count = 10 } = req.body;
     const fakeProducts = [];
     for (let i = 0; i < count; i++) {
+      const user = createRandomUser();
       const fakeProduct = {
         image: "uploads/8cf3cae1-8e68-4ebc-abd1-d20a2075b3ea.jpg",
         name: faker.commerce.productName(),
         stock: faker.datatype.number({ min: 1, max: 100 }), // You can adjust the range as needed
         price: faker.datatype.number({ min: 1, max: 1000 }), // You can adjust the range as needed
         category: faker.commerce.department(),
+        user, 
         isDeleted: false,
       };
       fakeProducts.push(fakeProduct);
     }
+   
     const savedProducts = await Product.insertMany(fakeProducts);
     invalidateCache({ product: true });
     console.log(`${count} fake products added successfully!`);
@@ -176,3 +179,16 @@ export const generateFakeProducts = async (
     throw error;
   }
 };
+function createRandomUser() {
+  return {
+    _id: faker.string.uuid(),
+    avatar: faker.image.avatar(),
+    birthday: faker.date.birthdate(),
+    email: faker.internet.email(),
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+ 
+   
+  };
+}
+

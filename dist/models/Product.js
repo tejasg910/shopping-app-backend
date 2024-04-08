@@ -9,6 +9,14 @@ const Schema = new mongoose.Schema({
         required: [true, "Plase enter category"],
         trim: true,
     },
+    user: {
+        _id: String,
+        avatar: String,
+        birthday: Date,
+        email: String,
+        firstName: String,
+        lastName: String,
+    },
     isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
 export const Product = mongoose.model("Product", Schema);
