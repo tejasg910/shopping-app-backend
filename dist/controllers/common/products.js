@@ -58,7 +58,7 @@ export const searchProducts = async (req, res, next) => {
         baseQuery.name = { $regex: search, $options: "i" };
     if (price)
         baseQuery.price = { $lte: Number(price) };
-    if (category)
+    if (category && category !== "all")
         baseQuery.category = category.toString();
     const productPromise = Product.find(baseQuery)
         .sort(sort && { price: sort === "asc" ? 1 : -1 })

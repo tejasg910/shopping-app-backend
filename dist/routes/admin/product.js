@@ -8,5 +8,5 @@ router.post("/new", adminOnly, singleUpload, TryCatch(newProduct));
 router.get("/getAll", adminOnly, TryCatch(getAllProducts));
 router.post("/dummyProducts", adminOnly, TryCatch(generateFakeProducts));
 router.put("/update/:id", adminOnly, singleUpload, TryCatch(udpateProduct));
-router.put("/delete/:id", adminOnly, singleUpload, TryCatch(deleteProductById));
+router.delete("/delete/:id", adminOnly, singleUpload, TryCatch(deleteProductById));
 export default router;

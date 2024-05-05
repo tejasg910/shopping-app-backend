@@ -41,6 +41,7 @@ export const udpateProduct = async (req, res, next) => {
     }
     const { name, stock, price, category } = req.body;
     const file = req.file;
+    console.log(req.file?.originalname, "This is file");
     if (file) {
         rm(existingProduct.image, () => {
             console.log("deleted file");

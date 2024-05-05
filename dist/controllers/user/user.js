@@ -22,14 +22,6 @@ export const newUser = async (req, res, next) => {
     });
     res.status(201).json({ success: true, message: `Welcome, ${user.name}` });
 };
-export const getAllUsers = async (req, res, next) => {
-    const users = await User.find({ isDeleted: false }).select(userIncludeItems);
-    res.status(201).json({
-        success: true,
-        message: `Fetched users successfully`,
-        data: users,
-    });
-};
 // Define a custom type for the request object
 export const getUserById = async (req, res, next) => {
     const id = req.params.id;
@@ -37,7 +29,7 @@ export const getUserById = async (req, res, next) => {
     if (!user) {
         return next(new ErrorHandler("User not found", 404));
     }
-    res.status(201).json({
+    res.status(200).json({
         success: true,
         message: `Fetched users successfully`,
         data: user,

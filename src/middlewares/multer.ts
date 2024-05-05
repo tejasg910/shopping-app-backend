@@ -6,6 +6,7 @@ const storage = multer.diskStorage({
     callback(null, "./uploads");
   },
   filename(req, file, callback) {
+    console.log(file, "file from middlware");
     const id = uuid();
     const extName = file.originalname.split(".").pop();
     const filename = `${id}.${extName}`;

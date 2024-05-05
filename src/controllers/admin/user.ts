@@ -115,3 +115,16 @@ export const deleteUserById = async (
     return next(new ErrorHandler("No user found", 400));
   }
 };
+export const getAllUsers = async (
+  req: Request<{}, {}, NewUserRequestBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const users = await User.find({ isDeleted: false }).select(userIncludeItems);
+
+  res.status(201).json({
+    success: true,
+    message: `Fetched users successfully`,
+    data: users,
+  });
+};

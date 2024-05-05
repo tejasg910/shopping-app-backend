@@ -86,7 +86,7 @@ export const searchProducts = async (
   if (search) baseQuery.name = { $regex: search, $options: "i" };
 
   if (price) baseQuery.price = { $lte: Number(price) };
-  if (category) baseQuery.category = category.toString();
+  if (category && category !== "all") baseQuery.category = category.toString();
   const productPromise = Product.find(baseQuery)
     .sort(sort && { price: sort === "asc" ? 1 : -1 })
     .limit(limit)

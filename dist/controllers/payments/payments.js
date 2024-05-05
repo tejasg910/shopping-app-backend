@@ -3,7 +3,7 @@ import ErrorHandler from "../../utils/utility-class.js";
 import { stripe } from "../../app.js";
 export const createCouponCode = async (req, res, next) => {
     const { coupon, amount } = req.body;
-    if (coupon || amount) {
+    if (!coupon || !amount) {
         return next(new ErrorHandler("Please enter both coupon and amount", 400));
     }
     await Coupon.create({ code: coupon, amount });
@@ -13,7 +13,7 @@ export const createCouponCode = async (req, res, next) => {
 };
 export const applyDiscount = async (req, res, next) => {
     const { coupon } = req.query;
-    if (coupon) {
+    if (!coupon) {
         return next(new ErrorHandler("Please enter both coupon and amount", 400));
     }
     const discount = await Coupon.findOne({ code: coupon });
@@ -59,6 +59,6 @@ export const newPayment = async (req, res, next) => {
     return res.status(200).json({
         success: true,
         message: "Coupon deleted successfully",
-        data: { clientSecret: paymentIntent.client_secret }
+        data: { clientSecret: paymentIntent.client_secret },
     });
 };

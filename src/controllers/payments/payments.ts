@@ -11,7 +11,7 @@ export const createCouponCode = async (
 ) => {
   const { coupon, amount } = req.body;
 
-  if (coupon || amount) {
+  if (!coupon || !amount) {
     return next(new ErrorHandler("Please enter both coupon and amount", 400));
   }
 
@@ -27,7 +27,7 @@ export const applyDiscount = async (
 ) => {
   const { coupon } = req.query;
 
-  if (coupon) {
+  if (!coupon) {
     return next(new ErrorHandler("Please enter both coupon and amount", 400));
   }
   const discount = await Coupon.findOne({ code: coupon });
@@ -83,14 +83,13 @@ export const newPayment = async (
   }
 
   const paymentIntent = await stripe.paymentIntents.create({
-    amount:Number(amount) * 100,
+    amount: Number(amount) * 100,
     currency: "inr",
   });
-
 
   return res.status(200).json({
     success: true,
     message: "Coupon deleted successfully",
-    data:{clientSecret:paymentIntent.client_secret}
+    data: { clientSecret: paymentIntent.client_secret },
   });
 };

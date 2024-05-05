@@ -39,6 +39,7 @@ export const newProduct = async (
     image: file.path,
     price,
     category: category.toLowerCase(),
+    
   });
   invalidateCache({ product: true });
   res.status(201).json({
@@ -66,12 +67,11 @@ export const udpateProduct = async (
   const { name, stock, price, category } = req.body;
 
   const file = req.file;
-
+  console.log(req.file?.originalname, "This is file");
   if (file) {
     rm(existingProduct.image!, () => {
       console.log("deleted file");
     });
-
     existingProduct.image = file.path;
   }
 
@@ -161,12 +161,12 @@ export const generateFakeProducts = async (
         stock: faker.datatype.number({ min: 1, max: 100 }), // You can adjust the range as needed
         price: faker.datatype.number({ min: 1, max: 1000 }), // You can adjust the range as needed
         category: faker.commerce.department(),
-        user, 
+        user,
         isDeleted: false,
       };
       fakeProducts.push(fakeProduct);
     }
-   
+
     const savedProducts = await Product.insertMany(fakeProducts);
     invalidateCache({ product: true });
     console.log(`${count} fake products added successfully!`);
@@ -187,8 +187,5 @@ function createRandomUser() {
     email: faker.internet.email(),
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
- 
-   
   };
 }
-

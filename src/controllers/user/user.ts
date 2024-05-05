@@ -31,19 +31,7 @@ export const newUser = async (
   res.status(201).json({ success: true, message: `Welcome, ${user.name}` });
 };
 
-export const getAllUsers = async (
-  req: Request<{}, {}, NewUserRequestBody>,
-  res: Response,
-  next: NextFunction
-) => {
-  const users = await User.find({ isDeleted: false }).select(userIncludeItems);
 
-  res.status(201).json({
-    success: true,
-    message: `Fetched users successfully`,
-    data: users,
-  });
-};
 interface Params {
   id: string;
 }
@@ -61,7 +49,7 @@ export const getUserById = async (
   if (!user) {
     return next(new ErrorHandler("User not found", 404));
   }
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     message: `Fetched users successfully`,
     data: user,
