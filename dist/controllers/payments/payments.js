@@ -20,7 +20,7 @@ export const applyDiscount = async (req, res, next) => {
     if (!discount) {
         return next(new ErrorHandler("Invalid coupon code", 400));
     }
-    return res.status(201).json({
+    return res.status(200).json({
         success: true,
         message: "Coupon fetched successfully",
         data: { discount: discount.amount },
@@ -58,7 +58,7 @@ export const newPayment = async (req, res, next) => {
     });
     return res.status(200).json({
         success: true,
-        message: "Coupon deleted successfully",
+        message: "New instance created successfully",
         data: { clientSecret: paymentIntent.client_secret },
     });
 };

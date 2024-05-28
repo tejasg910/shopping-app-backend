@@ -4,31 +4,20 @@ import { NewOrderRequestBody } from "../types/types.js";
 import { validateObjectIds } from "../utils/features.js";
 
 export const placeOrder = async (orderBody: NewOrderRequestBody) => {
-  const {
-    shippingInfo,
-    orderItems,
-    user,
-    subTotal,
-    discount,
-    shippingCharges,
-
-    name,
-    tax,
-    total,
-  } = orderBody;
+  const { products } = orderBody;
   const orders = [];
-  for (let i = 0; i < orderItems.length; i++) {
-    const productId = orderItems[i].productId;
-    const quantity = orderItems[i].quantity;
-    const newProductId = await validateObjectIds(productId);
+  const orderStatus = [];
 
-    const product = await Product.findById(newProductId);
-
+  let validateSubTotal = 0;
+  for (let i = 0; i < products.length; i++) {
+    const productId = products[i].product;
+    const quantity = products[i].quantity;
+    const product = await Product.findById(productId);
     if (!product) {
-      throw new Error("Product not found");
+      // throw new Error("Product not found");
     } else {
       if (product.stock! < quantity) {
-        orders.push({
+        orderStatus.push({
           product: product.name,
           success: false,
           message: "Quantity is greater than available stock",
@@ -36,26 +25,16 @@ export const placeOrder = async (orderBody: NewOrderRequestBody) => {
       } else {
         product.stock! -= quantity;
         await product.save();
-
+        console.log(products[i], "inside function of else");
         //create order here
-        const orderSubTotal = product.price!;
-        const orderTotalPrice =
-          shippingCharges + tax + orderSubTotal - discount;
-        await Order.create({
-          shippingInfo,
-
-          user,
-          subTotal: orderSubTotal,
-          discount,
-          name,
-          shippingCharges,
-          tax,
-          quantity: quantity,
-          product: product._id,
-          total: orderTotalPrice,
-        });
-
+        validateSubTotal += product?.price ? product.price * quantity : 0;
+        console.log(product?.price, quantity, "this is product price ");
+        console.log(validateSubTotal, "this is validate subtotal");
         orders.push({
+          product: product._id,
+          quantity,
+        });
+        orderStatus.push({
           product: product.name,
           success: true,
           message: "Order placed successfully",
@@ -63,5 +42,5 @@ export const placeOrder = async (orderBody: NewOrderRequestBody) => {
       }
     }
   }
-  return orders;
+  return { orders, validateSubTotal, orderStatus };
 };

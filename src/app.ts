@@ -13,7 +13,7 @@ import { errorMiddleWare } from "./middlewares/errorHandler.js";
 import { config } from "dotenv";
 import Stripe from "stripe";
 config({ path: "./.env" });
-const stripeKey = process.env.STRIPE || "";
+const stripeKey = process.env.STRIPE_SECRET || "";
 export const stripe = new Stripe(stripeKey);
 
 const app = express();
@@ -37,7 +37,6 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/pay", paymentRoutes);
 
 // Serve static files from the uploads directory
-
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.get("/", (req, res, next) => {

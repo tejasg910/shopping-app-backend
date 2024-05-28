@@ -13,7 +13,7 @@ export const newOrder = async (
 ) => {
   const {
     shippingInfo,
-    orderItems,
+    products,
     user,
     subTotal,
     discount,
@@ -23,12 +23,11 @@ export const newOrder = async (
     tax,
     total,
   } = req.body;
-
+  console.log(req.body);
   if (
     !shippingInfo ||
     !user ||
     !subTotal ||
-    !discount ||
     !shippingCharges ||
     !name ||
     !tax ||
@@ -39,7 +38,7 @@ export const newOrder = async (
       .json({ success: false, message: "All fields are required" });
   }
 
-  if (!orderItems) {
+  if (!products) {
     return res
       .status(400)
       .json({ success: false, message: "Provide order items" });
@@ -47,7 +46,7 @@ export const newOrder = async (
 
   const orders = await placeOrder({
     shippingInfo,
-    orderItems,
+    products,
     user,
     subTotal,
     discount,
@@ -58,13 +57,35 @@ export const newOrder = async (
     total,
   });
 
-  await invalidateCache({ product: true, order: true, admin: true });
+  console.log(orders.validateSubTotal, subTotal);
 
-  return res.status(201).json({
-    success: true,
-    message: "All orders processed successfully",
-    data: orders,
-  });
+  if (orders.validateSubTotal === subTotal) {
+    const total = subTotal + tax + shippingCharges - discount;
+    await Order.create({
+      discount,
+
+      user,
+      products: orders.orders,
+      tax,
+      shippingCharges,
+      shippingInfo,
+      subTotal,
+      total,
+    });
+
+    await invalidateCache({ product: true, order: true, admin: true });
+
+    return res.status(201).json({
+      success: true,
+      message: "All orders processed successfully",
+      data: orders.orderStatus,
+    });
+  } else {
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
 };
 
 export const getAllMyOrders = async (
@@ -73,7 +94,10 @@ export const getAllMyOrders = async (
   next: NextFunction
 ) => {
   const id = req.query.id;
-  const orders = await Order.find({ user: id, isDeleted: false });
+  const orders = await Order.find({ user: id, isDeleted: false }).populate({
+    path: "user",
+    select: ["name", "_id"],
+  });
 
   return res.status(200).json({
     success: true,
@@ -81,23 +105,7 @@ export const getAllMyOrders = async (
     data: orders,
   });
 };
-export const getOrderDetails = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const id = req.params.id;
 
-  const order = await Order.findById({ _id: id, isDeleted: false });
-  if (!order) {
-    return next(new ErrorHandler("No order found", 404));
-  }
-  return res.status(200).json({
-    success: true,
-    message: "Orders fetched successfully",
-    data: order,
-  });
-};
 export const cancelOrder = async (
   req: Request,
   res: Response,
@@ -116,11 +124,20 @@ export const cancelOrder = async (
   }
 
   await Order.findByIdAndUpdate({ _id: orderId }, { status: "cancelled" });
-  const product = await Product.findById(order.product);
 
-  const updatedStock = Number((product?.stock || 0) + order.quantity);
+  const products = order.products;
+  products.forEach(async (product) => {
+    const originalProduct = await Product.findById(product.product);
 
-  await Product.findByIdAndUpdate(order.product, { stock: updatedStock });
+    if (originalProduct) {
+      await Product.findOneAndUpdate(
+        { _id: product._id },
+
+        { stock: Number(originalProduct.stock || 0 + product.quantity) }
+      );
+    }
+  });
+
   invalidateCache({ product: true, order: true, admin: true });
 
   return res.status(200).json({

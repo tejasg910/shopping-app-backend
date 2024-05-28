@@ -37,12 +37,23 @@ const Schema = new mongoose.Schema({
         enum: ["processing", "shipped", "delivered", "cancelled"],
         default: "processing",
     },
-    name: { type: String, required: [true, "Plase enter name"] },
-    product: {
-        type: mongoose.Types.ObjectId,
-        ref: "Product",
+    // name: { type: String, required: [true, "Plase enter name"] },
+    products: [
+        {
+            product: { type: mongoose.Types.ObjectId, ref: "Product" },
+            quantity: { type: Number, default: 1 },
+        },
+    ],
+    paymentMode: {
+        type: String,
+        enum: ["UPI", "", "Net-Banking", "Cash on Delivery"],
+        default: "Cash on Delivery",
     },
-    quantity: { type: Number, default: 1 },
+    paymentStatus: {
+        type: String,
+        enum: ["Pending", "", "Paid"],
+        default: "Pending",
+    },
     isDeleted: { type: Boolean, default: false },
 }, { timestamps: true });
 export const Order = mongoose.model("Order", Schema);

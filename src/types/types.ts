@@ -61,7 +61,7 @@ export type shippingInfoType = {
   city: string;
 };
 export type OrderItemsType = {
-  productId: string;
+  product: string;
   quantity: number;
 };
 export interface NewOrderRequestBody {
@@ -72,7 +72,26 @@ export interface NewOrderRequestBody {
   shippingCharges: number;
   discount: number;
   total: number;
-  orderItems: OrderItemsType[];
+  products: OrderItemsType[];
 
   name: string;
+}
+
+export interface Product {
+  _id: string;
+  image: string;
+  name: string;
+  stock: number;
+  price: number;
+  category: string;
+  user:
+    | {
+        _id: string;
+        avatar: string;
+        birthday: Date;
+        email: string;
+        firstName: string;
+        lastName: string;
+      }
+    | string;
 }
