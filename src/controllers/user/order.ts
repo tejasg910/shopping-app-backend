@@ -57,7 +57,6 @@ export const newOrder = async (
     total,
   });
 
-  console.log(orders.validateSubTotal, subTotal);
 
   if (orders.validateSubTotal === subTotal) {
     const total = subTotal + tax + shippingCharges - discount;
@@ -81,6 +80,7 @@ export const newOrder = async (
       data: orders.orderStatus,
     });
   } else {
+    console.log(orders.validateSubTotal, subTotal);
     return res.status(500).json({
       success: false,
       message: "Something went wrong",

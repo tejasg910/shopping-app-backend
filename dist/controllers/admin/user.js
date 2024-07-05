@@ -1,6 +1,8 @@
 import { User } from "../../models/User.js";
 import ErrorHandler from "../../utils/utility-class.js";
 import { rm } from "fs";
+import { userIncludeItems } from "../../utils/constants.js";
+import { nodeCache } from "../../app.js";
 export const createUser = async (req, res, next) => {
     const { name, email, image, dob, gender, _id } = req.body;
     let user = await User.findById(_id);
@@ -81,10 +83,32 @@ export const deleteUserById = async (req, res, next) => {
     }
 };
 export const getAllUsers = async (req, res, next) => {
-    const users = await User.find({ isDeleted: false }).select(userIncludeItems);
-    res.status(201).json({
+    let users = [];
+    let userCount = 0;
+    const page = Number(req.query.page) || 1;
+    const key = `allUsers-${page}`;
+    const limit = Number(process.env.PRODUCT_PER_PAGE) || 10;
+    const skip = limit * (page - 1);
+    if (nodeCache.has(key) && nodeCache.has("allUserCount")) {
+        users = JSON.parse(nodeCache.get(key));
+        userCount = Number(nodeCache.get("allUserCount"));
+    }
+    else {
+        userCount = await User.countDocuments();
+        const testdata = await User.find({});
+        users = await User.find({})
+            .limit(limit)
+            .skip(skip)
+            .select(userIncludeItems);
+        nodeCache.set(key, JSON.stringify(users));
+        nodeCache.set("allOrdersCount", JSON.stringify(userCount));
+    }
+    const totalPages = Math.ceil(userCount / limit);
+    return res.status(200).json({
         success: true,
-        message: `Fetched users successfully`,
+        message: "All users fetched successfully",
         data: users,
+        currPage: page,
+        totalPages,
     });
 };

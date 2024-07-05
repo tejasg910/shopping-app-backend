@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.post("/new", adminOnly, singleUpload, TryCatch(createUser));
 router.post("/update", adminOnly, singleUpload, TryCatch(updateUser));
-router.post("/all", adminOnly, TryCatch(getAllUsers));
+router.get("/all", adminOnly, TryCatch(getAllUsers));
 
 router.delete("/delete/:id", adminOnly, TryCatch(deleteProductById));
 router.delete(

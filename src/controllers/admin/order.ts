@@ -207,6 +207,14 @@ export const udpateOrder = async (
         if (discount) {
           order.discount = Number(discount);
         }
+
+        console.log(Number(shippingCharges), Number(tax), Number(discount));
+        const total =
+          Number(shippingCharges) +
+          Number(tax) +
+          order.subTotal -
+          Number(discount);
+        order.total = total;
         await order.save();
         return res.status(200).json({
           success: true,

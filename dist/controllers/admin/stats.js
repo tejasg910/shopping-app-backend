@@ -152,12 +152,37 @@ export const getPieChartsStats = async (req, res, next) => {
             Order.countDocuments({ status: "shipped" }),
             Order.countDocuments({ status: "delivered" }),
         ]);
+        const productsByCategory = await Product.aggregate([
+            {
+                $group: {
+                    _id: "$category",
+                    count: {
+                        $sum: 1,
+                    },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    category: "$_id", // Rename _id to category
+                    count: 1, // Include the count field
+                },
+            },
+        ]);
+        const stockRatio = await Promise.all([
+            Product.countDocuments({ stock: { $gt: 1 } }),
+            Product.countDocuments({ stock: { $lt: 1 } }),
+        ]);
+        const userTypes = await Promise.all([
+            User.countDocuments({ type: "admin" }),
+            User.countDocuments({ type: "user" }),
+        ]);
         const orderFulFilment = {
             processing: processingOrder,
             shipped: shippedOrder,
             delivered: deliveredOrder,
         };
-        charts = orderFulFilment;
+        charts = { orderFulFilment, stockRatio, userTypes, productsByCategory };
         nodeCache.set("admin-pie-charts", JSON.stringify(charts));
     }
     return res.status(200).json({
@@ -166,12 +191,13 @@ export const getPieChartsStats = async (req, res, next) => {
         message: "Fetched pie charts successfully",
     });
 };
-export const getBarChartsStats = async () => {
+export const getBarChartsStats = async (req, res, next) => {
     let charts;
     const key = "admin-bar-charts";
     if (nodeCache.has(key))
         charts = JSON.parse(nodeCache.get(key));
     else {
+        const today = new Date();
         const sixMonthAgo = new Date();
         sixMonthAgo.setMonth(sixMonthAgo.getMonth() - 6);
         const twelveMonthAgo = new Date();
@@ -190,17 +216,46 @@ export const getBarChartsStats = async () => {
         });
         const tweleMonthOrderPromise = Order.find({
             createdAt: {
-                $gte: sixMonthAgo,
+                $gte: today,
                 $lte: twelveMonthAgo,
             },
         });
-        const [products, users, orders] = Promise.all([
+        const [products, users, orders] = await Promise.all([
             lastSixMonthProductPromise,
             lastSixMonthUserPromise,
             tweleMonthOrderPromise,
         ]);
-        charts = {};
+        const monthlyUsers = new Array(6).fill(0);
+        const mmonthlyProducts = new Array(6).fill(0);
+        const monthlyOrders = new Array(12).fill(0);
+        users.forEach((user) => {
+            const creationDate = user.createdAt;
+            const monthDifference = (today.getMonth() - creationDate.getMonth() + 12) % 12;
+            if (monthDifference < 6) {
+                monthlyUsers[6 - monthDifference - 1] += 1;
+            }
+        });
+        products.forEach((product) => {
+            const creationDate = product.createdAt;
+            const monthDifference = (today.getMonth() - creationDate.getMonth() + 12) % 12;
+            if (monthDifference < 6) {
+                mmonthlyProducts[6 - monthDifference - 1] += 1;
+            }
+        });
+        orders.forEach((order) => {
+            const creationDate = order.createdAt;
+            const monthDifference = (today.getMonth() - creationDate.getMonth() + 12) % 12;
+            if (monthDifference < 12) {
+                monthlyOrders[12 - monthDifference - 1] += 1;
+            }
+        });
+        charts = {
+            products: mmonthlyProducts,
+            users: monthlyUsers,
+            orders: monthlyOrders,
+        };
         nodeCache.set(key, JSON.stringify(charts));
+        return res.status(200).json({ success: true, data: charts });
     }
 };
 export const getLineChartsStats = async () => { };

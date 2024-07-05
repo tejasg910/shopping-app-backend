@@ -33,7 +33,6 @@ export const newOrder = async (req, res, next) => {
         tax,
         total,
     });
-    console.log(orders.validateSubTotal, subTotal);
     if (orders.validateSubTotal === subTotal) {
         const total = subTotal + tax + shippingCharges - discount;
         await Order.create({
@@ -54,6 +53,7 @@ export const newOrder = async (req, res, next) => {
         });
     }
     else {
+        console.log(orders.validateSubTotal, subTotal);
         return res.status(500).json({
             success: false,
             message: "Something went wrong",
