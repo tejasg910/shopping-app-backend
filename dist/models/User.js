@@ -5,16 +5,9 @@ const Schema = new mongoose.Schema({
     image: { type: String, required: [true, "Plase add image"] },
     role: { type: String, enum: ["admin", "user"], default: "user" },
     name: { type: String, required: [true, "Plase enter name"] },
-    gender: {
-        type: String,
-        enum: ["male", "female"],
-        required: [true, "Please enter gender"],
-    },
     isDeleted: { type: Boolean, default: false },
-    dob: { type: Date, required: [true, "Plase enter date of birth"] },
     email: {
         type: String,
-        required: [true, "Plase enter email"],
         unique: [true, "Email already exists"],
         validator: validator.default.isEmail,
     },

@@ -4,6 +4,7 @@ import { rm } from "fs";
 import { faker } from "@faker-js/faker";
 import { nodeCache } from "../../app.js";
 import { invalidateCache } from "../../utils/features.js";
+import { FeatureProduct } from "../../models/FeatureProdduct.js";
 export const newProduct = async (req, res, next) => {
     const { name, stock, price, category } = req.body;
     const file = req.file;
@@ -92,6 +93,58 @@ export const getAllProducts = async (req, res, next) => {
         totalPages: Math.ceil(productCounts / limit),
         currPage: page,
     });
+};
+export const getFeatureProduct = async (req, res, next) => {
+    const featureProduct = await FeatureProduct.findOne({ isDeleted: false }).populate("product");
+    res.status(200).json({
+        success: true,
+        message: `Fetched featured product successfully`,
+        data: featureProduct,
+    });
+};
+export const changeFeatureProduct = async (req, res, next) => {
+    const { product, discount } = req.body;
+    const featureProduct = await FeatureProduct.findOne({});
+    if (featureProduct) {
+        await FeatureProduct.findOneAndUpdate({}, {
+            $set: {
+                discount,
+                product,
+            }
+        });
+        res.status(200).json({
+            success: true,
+            message: `Feature product udpated successfully`,
+        });
+    }
+    else {
+        await FeatureProduct.create({ discount, product, isActive: true });
+        res.status(200).json({
+            success: true,
+            message: `Feature product added successfully`,
+        });
+    }
+};
+export const changeFeatureProductStatus = async (req, res, next) => {
+    const featureProduct = await FeatureProduct.findOne();
+    console.log(featureProduct, 'this isfeature product');
+    if (featureProduct) {
+        await FeatureProduct.findOneAndUpdate({}, {
+            $set: {
+                isActive: !featureProduct.isActive
+            }
+        });
+        res.status(200).json({
+            success: true,
+            message: `Product status udpated successfully`,
+        });
+    }
+    else {
+        res.status(400).json({
+            success: false,
+            message: `No product found`,
+        });
+    }
 };
 export const deleteProductById = async (req, res, next) => {
     const id = req.params.id;

@@ -53,6 +53,26 @@ export const updateUser = async (req, res, next) => {
         message: `user updated successfully`,
     });
 };
+export const makeUserAdmin = async (req, res, next) => {
+    const id = req.params.id;
+    console.log("came in udpa[te");
+    if (!id) {
+        return next(new ErrorHandler("Please provide id ", 400));
+    }
+    const existingUser = await User.findById(id);
+    if (!existingUser) {
+        return next(new ErrorHandler("Please give valid id", 400));
+    }
+    if (existingUser.role === "admin") {
+        return res.status(400).json({ success: false, message: "This user is already admin" });
+    }
+    existingUser.role = "admin";
+    await existingUser.save();
+    res.status(200).json({
+        success: true,
+        message: `User role changed`,
+    });
+};
 export const deleteUser = async (req, res, next) => {
     const id = req.params.id;
     if (!id) {
