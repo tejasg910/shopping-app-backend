@@ -13,6 +13,12 @@ import { errorMiddleWare } from "./middlewares/errorHandler.js";
 import { config } from "dotenv";
 import Stripe from "stripe";
 config({ path: "./.env" });
+import fs from "fs";
+// Create 'uploads' directory if it doesn't exist
+const uploadDir = "./uploads";
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 const stripeKey = process.env.STRIPE_SECRET || "";
 export const stripe = new Stripe(stripeKey);
 const app = express();
