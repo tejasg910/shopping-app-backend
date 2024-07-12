@@ -2,20 +2,29 @@ import { User } from "../../models/User.js";
 import ErrorHandler from "../../utils/utility-class.js";
 import { userIncludeItems } from "../../utils/constants.js";
 export const newUser = async (req, res, next) => {
-    const { name, email, image, _id } = req.body;
+    let { name, email, image, dob, gender, _id } = req.body;
+    if (!name) {
+        if (email) {
+            name = email.split("@")[0];
+        }
+    }
     let user = await User.findById(_id);
     if (user) {
         return res
             .status(200)
             .json({ success: true, message: `Welcome, ${user.name}` });
     }
-    if (!_id || !name || !email || !image) {
+    console.log(_id);
+    if (!_id) {
         next(new ErrorHandler("Please provide all fields", 400));
     }
+    console.log("came here");
     user = await User.create({
         name,
         email,
         image,
+        dob: new Date(dob),
+        gender,
         _id,
     });
     res.status(201).json({ success: true, message: `Welcome, ${user.name}` });

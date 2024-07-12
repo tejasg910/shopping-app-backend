@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 import validator from "validator";
 const Schema = new mongoose.Schema({
     _id: { type: String, required: [true, "Plase enter id"] },
-    image: { type: String, required: [true, "Plase add image"] },
+    image: { type: String },
     role: { type: String, enum: ["admin", "user"], default: "user" },
-    name: { type: String, required: [true, "Plase enter name"] },
+    name: { type: String, },
     isDeleted: { type: Boolean, default: false },
     email: {
         type: String,
