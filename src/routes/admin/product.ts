@@ -17,7 +17,7 @@ const router = express.Router();
 router.post("/new", adminOnly, singleUpload, TryCatch(newProduct));
 
 router.get("/getAll", adminOnly, TryCatch(getAllProducts));
-router.get("/getFeatureProduct", adminOnly, TryCatch(getFeatureProduct));
+router.get("/getFeatureProduct", TryCatch(getFeatureProduct));
 router.put("/updateFeatureProduct", adminOnly, TryCatch(changeFeatureProduct));
 router.put("/updateFeatureProductStatus", adminOnly, TryCatch(changeFeatureProductStatus));
 
