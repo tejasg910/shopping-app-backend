@@ -1,7 +1,6 @@
-# Project Name
+# Shopping Backend
 
-A brief description of what your project does.
-
+Tech stack used typescript, cloudinary, multer, mongoose, stripe
 ## Table of Contents
 
 - [Installation](#installation)
