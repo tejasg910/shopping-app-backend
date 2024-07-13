@@ -1,35 +1,59 @@
 import { Product } from "../../models/Product.js";
 import ErrorHandler from "../../utils/utility-class.js";
-import { rm } from "fs";
 import { faker } from "@faker-js/faker";
 import { nodeCache } from "../../app.js";
 import { invalidateCache } from "../../utils/features.js";
 import { FeatureProduct } from "../../models/FeatureProdduct.js";
+import { cloudinary } from "../../app.js";
 export const newProduct = async (req, res, next) => {
     const { name, stock, price, category } = req.body;
     const file = req.file;
-    if (!file) {
-        return next(new ErrorHandler("Please provide image", 400));
+    try {
+        if (!file) {
+            return next(new ErrorHandler("Please provide image or selected image may greater than 1mb", 400));
+        }
+        if (!name || !stock || !price || !category || !req.file?.buffer) {
+            //delete uploaded file
+            // rm(file.path, () => {
+            //   console.log("deleted file");
+            // });
+            next(new ErrorHandler("Please provide all fields", 400));
+        }
+        //     console.log(file)
+        //   const result = await cloudinary.uploader.upload(file.path , {
+        //     folder:'shopping', 
+        //     file
+        //  });
+        //  console.log(result,'this is result')
+        const fileBuffer = req?.file?.buffer;
+        cloudinary.uploader.upload_stream({ folder: 'shopping' }, (error, result) => {
+            if (error) {
+                console.log(error);
+                return res.status(500).send('Failed to upload file to Cloudinary.');
+            }
+            Product.create({
+                name,
+                stock,
+                image: result?.secure_url,
+                price,
+                category: category.toLowerCase(),
+            }).then((product) => {
+                invalidateCache({ product: true });
+                res.status(201).json({
+                    success: true,
+                    message: `${product.name}  added successfully`,
+                });
+            }).catch((error) => {
+                return res.status(500).json({
+                    success: false,
+                    message: `Internal server error`,
+                });
+            });
+        }).end(fileBuffer);
     }
-    if (!name || !stock || !price || !category) {
-        //delete uploaded file
-        rm(file.path, () => {
-            console.log("deleted file");
-        });
-        next(new ErrorHandler("Please provide all fields", 400));
+    catch (error) {
+        return res.status(500).json({ success: false, message: "Something went wrong" });
     }
-    const product = await Product.create({
-        name,
-        stock,
-        image: file.path,
-        price,
-        category: category.toLowerCase(),
-    });
-    invalidateCache({ product: true });
-    res.status(201).json({
-        success: true,
-        message: `${product.name} added successfully`,
-    });
 };
 export const udpateProduct = async (req, res, next) => {
     const id = req.params.id;
@@ -44,10 +68,20 @@ export const udpateProduct = async (req, res, next) => {
     const file = req.file;
     console.log(req.file?.originalname, "This is file");
     if (file) {
-        rm(existingProduct.image, () => {
-            console.log("deleted file");
+        const fileBuffer = req?.file?.buffer;
+        const result = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream({ folder: 'shopping' }, (error, result) => {
+                if (result) {
+                    resolve(result);
+                }
+                else {
+                    reject(error);
+                }
+            });
+            stream.end(fileBuffer);
         });
-        existingProduct.image = file.path;
+        console.log(result);
+        existingProduct.image = result.secure_url;
     }
     if (name)
         existingProduct.name = name;
