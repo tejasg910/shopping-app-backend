@@ -15,6 +15,17 @@ import Stripe from "stripe";
 config({ path: "./.env" });
 
 import fs from "fs";
+import { v2 as cloudinary , UploadApiResponse} from 'cloudinary';
+console.log(process.env.CLOUDINARY_CLOUD_NAME)
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_KEY!,
+  api_secret: process.env.CLOUDINARY_SECRET!,
+});
+
+
+
+export {cloudinary, UploadApiResponse};
 
 // Create 'uploads' directory if it doesn't exist
 const uploadDir = "./uploads";
