@@ -3,4 +3,4 @@ uploads
 node_modules
 
 src/uploads
-./env
+.env
